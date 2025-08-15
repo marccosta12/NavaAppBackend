@@ -1,0 +1,55 @@
+# Entorno virtual
+venv/
+ENV/
+env/
+.venv/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.py.class
+
+# Archivos de entorno
+.env
+*.env
+
+# Archivos de base de datos y migraciones locales
+db.sqlite3
+*.db
+*.sql
+
+# Archivos de migraciones de Django
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Archivos temporales
+*.log
+*.pot
+*.pyc
+*.tmp
+*.temp
+*.cache
+*.mo
+*.swp
+*.swo
+*~
+
+# Configuración del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Docker
+pg_data/
+*.pid
+
+# PyCharm / VSCode / JetBrains
+.idea/
+.vscode/
+*.iml
+
+# Archivos de compilación y distribución
+build/
+dist/
+*.egg-info
