@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -71,6 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'nava_backend.wsgi.application'
 
+AUTH_USER_MODEL = "users.User" #indica que este será el modelo de usuario
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

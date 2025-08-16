@@ -9,13 +9,41 @@ POSTGRES_PASSWORD=
 POSTGRES_DB=
 POSTGRES_PORT=
 
-2. Comprobar conexión
-python manage.py runserver
+2. Activar venv
+.\venv\Scripts\Activate
 
-3. Arrancar servidor
+3. Comprobar conexión
+python manage.py migrate
+
+4. Arrancar servidor
 python manage.py runserver
 
 Servidor: http://127.0.0.1:8000/
+
+# Crear APP nueva
+python manage.py startapp [nombre app]
+
+1. Registrar las apps
+settings.py -> INSTALLED_APPS
+INSTALLED_APPS = [
+    ...
+    'users',
+    [nombre app],
+]
+
+2. Esqueletos de modelos
+[nombre app]/models.py
+Crear la estructura de la base de datos
+Ejemplo:
+class User(models.Model):
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+3. Crear migración
+python manage.py makemigrations
+python manage.py migrate
 
 
 # GIT
