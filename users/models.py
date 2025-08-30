@@ -22,6 +22,10 @@ class User(AbstractUser):
     # Email verificado
     email_verified = models.BooleanField(default=False)
 
+    # Creación nombre usuario
+    has_custom_username = models.BooleanField(default=False)
+    can_change_password = models.BooleanField(default=False)
+
     # Aceptación de términos
     accept_terms = models.BooleanField(default=False)
 
