@@ -1,11 +1,13 @@
+import uuid
+import random
 from datetime import timedelta
+from django.utils import timezone
+from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
+from django.core.exceptions import MultipleObjectsReturned
+from django.db.models import Q
 from rest_framework import serializers
 from .models import PhoneVerification, User, EmailVerification
-from django.utils import timezone
-import uuid
-from django.contrib.auth import get_user_model
-import random
-from django.contrib.auth.hashers import make_password
 
 User = get_user_model()
 
@@ -226,3 +228,57 @@ class SetPasswordSerializer(serializers.Serializer):
 
         return user
 
+class LoginSerializer(serializers.Serializer):
+    identifier = serializers.CharField()   # phone, email o username
+    password = serializers.CharField(write_only=True)
+
+    def _find_user(self, identifier: str) -> User:
+        """
+        Busca por teléfono (exacto), email (case-insensitive) o username (case-insensitive).
+        Si hubiese colisión, prioriza: teléfono > email > username.
+        """
+        qs = User.objects.filter(
+            Q(phone_number=identifier) |
+            Q(email__iexact=identifier) |
+            Q(username__iexact=identifier)
+        )
+
+        if not qs.exists():
+            raise User.DoesNotExist
+
+        if qs.count() == 1:
+            return qs.first()
+
+        # Desambiguación explícita por prioridad
+        phone_match = qs.filter(phone_number=identifier).first()
+        if phone_match:
+            return phone_match
+
+        email_match = qs.filter(email__iexact=identifier).first()
+        if email_match:
+            return email_match
+
+        username_match = qs.filter(username__iexact=identifier).first()
+        if username_match:
+            return username_match
+
+        # Si llegamos aquí es muy raro, pero cubrimos el caso
+        raise MultipleObjectsReturned("Multiple users matched this identifier")
+
+    def validate(self, attrs):
+        identifier = attrs.get("identifier", "").strip()
+        password = attrs.get("password")
+
+        try:
+            user = self._find_user(identifier)
+        except (User.DoesNotExist, MultipleObjectsReturned):
+            raise serializers.ValidationError("Invalid credentials")
+
+        if not user.check_password(password):
+            raise serializers.ValidationError("Invalid credentials")
+
+        if user.is_blocked:
+            raise serializers.ValidationError("Account is blocked")
+
+        attrs["user"] = user
+        return attrs
