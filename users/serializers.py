@@ -11,6 +11,8 @@ from .models import PhoneVerification, User, EmailVerification
 
 User = get_user_model()
 
+#Auth
+
 class RequestPhoneVerificationSerializer(serializers.Serializer):
     phoneNumber = serializers.CharField(max_length=20)
 
@@ -282,3 +284,35 @@ class LoginSerializer(serializers.Serializer):
 
         attrs["user"] = user
         return attrs
+
+#Users
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "phone_number",
+            "phone_verified",
+            "email",
+            "email_verified",
+            "country",
+            "city",
+            "postal_code",
+            "address",
+            "kyc_status",
+            "is_blocked",
+        ]
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["country", "city", "postal_code", "address"]
+
+    def update(self, instance, validated_data):
+        instance.country = validated_data.get("country", instance.country)
+        instance.city = validated_data.get("city", instance.city)
+        instance.postal_code = validated_data.get("postal_code", instance.postal_code)
+        instance.address = validated_data.get("address", instance.address)
+        instance.save()
+        return instance

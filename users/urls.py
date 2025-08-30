@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import RequestPhoneVerificationView, VerifyPhoneCodeView, SetEmailView, VerifyEmailCodeView, SetUsernameView, SetPasswordView, LoginView
+from .views import (RequestPhoneVerificationView, VerifyPhoneCodeView, SetEmailView, VerifyEmailCodeView, SetUsernameView, SetPasswordView, 
+                    LoginView, GetUsersView, UpdateUsersView)
 
 urlpatterns = [
     path("auth/request-phone-verification", RequestPhoneVerificationView.as_view()),
@@ -9,4 +10,6 @@ urlpatterns = [
     path("auth/set-username", SetUsernameView.as_view(), name="set-username"),
     path("auth/set-password", SetPasswordView.as_view(), name="set-password"),
     path("auth/login", LoginView.as_view(), name="login"),
+    path("users/me", GetUsersView.as_view(), name="me"),
+    path("users/update", UpdateUsersView.as_view(), name="me-update"),
 ]
