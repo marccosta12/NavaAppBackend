@@ -7,7 +7,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from rest_framework import serializers
-from .models import PhoneVerification, User, EmailVerification
+from .models import PhoneVerification, User, EmailVerification, KYCSubmission
 
 User = get_user_model()
 
@@ -316,3 +316,47 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.address = validated_data.get("address", instance.address)
         instance.save()
         return instance
+
+#KYC
+class KycUploadDocumentSerializer(serializers.ModelSerializer):
+    documentType = serializers.ChoiceField(choices=["passport", "nie", "national_id"])
+    documentFront = serializers.FileField(required=True)
+    documentBack = serializers.FileField(required=False, allow_null=True)
+
+    class Meta:
+        model = KYCSubmission
+        fields = ["documentType", "documentNumber", "documentFront", "documentBack"]
+
+    def validate(self, attrs):
+        doc_type = attrs.get("documentType")
+        front = attrs.get("documentFront")
+        back = attrs.get("documentBack")
+
+        if not front:
+            raise serializers.ValidationError("Front side of the document is required.")
+
+        if doc_type in ["nie", "national_id"] and not back:
+            raise serializers.ValidationError("Back side of the document is required for NIE or National ID.")
+
+        return attrs
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        return KYCSubmission.objects.create(user=user, **validated_data)
+
+class KycSelfieUploadSerializer(serializers.ModelSerializer):
+    file = serializers.FileField()
+
+    class Meta:
+        model = KYCSubmission
+        fields = ["file"]
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        return KYCSubmission.objects.create(
+            user=user,
+            type="selfie",
+            file=validated_data["file"],
+            status="PENDING"
+        )
+
