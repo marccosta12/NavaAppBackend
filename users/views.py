@@ -7,7 +7,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import (RequestPhoneVerificationSerializer, VerifyPhoneCodeSerializer, SetEmailSerializer, VerifyEmailCodeSerializer, 
                           SetUsernameSerializer, SetPasswordSerializer, LoginSerializer, UserSerializer, UserUpdateSerializer, KycUploadDocumentSerializer, 
-                          KycSelfieUploadSerializer)
+                          KycUploadSelfieSerializer)
 
 
 class RequestPhoneVerificationView(APIView):
@@ -135,12 +135,13 @@ class KycUploadDocumentView(APIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class KycUploadSelfieView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]  # soporta multipart/form-data
 
     def post(self, request):
-        serializer = KycSelfieUploadSerializer(data=request.data, context={"request": request})
+        serializer = KycUploadSelfieSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response({
@@ -151,4 +152,5 @@ class KycUploadSelfieView(APIView):
                 }
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 

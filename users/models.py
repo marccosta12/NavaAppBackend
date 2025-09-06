@@ -89,6 +89,11 @@ class KYCSubmission(models.Model):
         ("REJECTED", "Rejected"),
     ]
 
+    SIDE_CHOICES = [
+        ("FRONT", "Front"),
+        ("BACK", "Back"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -96,6 +101,7 @@ class KYCSubmission(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="kyc_submissions")
     type = models.CharField(max_length=50)  # Ej: "DOCUMENT", "SELFIE"
     document_type = models.CharField(max_length=50, null=True, blank=True)
+    side = models.CharField(max_length=10, choices=SIDE_CHOICES, null=True, blank=True)  # FRONT / BACK
     file_url = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
     reviewed_by = models.UUIDField(null=True, blank=True)  # luego podremos relacionarlo con AdminUser

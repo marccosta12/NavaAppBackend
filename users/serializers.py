@@ -319,33 +319,35 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
 #KYC
 class KycUploadDocumentSerializer(serializers.ModelSerializer):
-    documentType = serializers.ChoiceField(choices=["passport", "nie", "national_id"])
-    documentFront = serializers.FileField(required=True)
-    documentBack = serializers.FileField(required=False, allow_null=True)
+    documentType = serializers.ChoiceField(
+        choices=["passport", "nie", "national_id"], source="document_type"
+    )
+    documentNumber = serializers.CharField(source="extracted_number", required=False, allow_blank=True)
+    side = serializers.ChoiceField(
+        choices=["Front", "Back"], source="side"
+    )
+    file = serializers.FileField(write_only=True)
 
     class Meta:
         model = KYCSubmission
-        fields = ["documentType", "documentNumber", "documentFront", "documentBack"]
-
-    def validate(self, attrs):
-        doc_type = attrs.get("documentType")
-        front = attrs.get("documentFront")
-        back = attrs.get("documentBack")
-
-        if not front:
-            raise serializers.ValidationError("Front side of the document is required.")
-
-        if doc_type in ["nie", "national_id"] and not back:
-            raise serializers.ValidationError("Back side of the document is required for NIE or National ID.")
-
-        return attrs
+        fields = ["documentType", "documentNumber", "side", "file"]
 
     def create(self, validated_data):
         user = self.context["request"].user
-        return KYCSubmission.objects.create(user=user, **validated_data)
+        uploaded_file = validated_data.pop("file")
 
-class KycSelfieUploadSerializer(serializers.ModelSerializer):
-    file = serializers.FileField()
+        # Guardamos en FileField o como ruta
+        submission = KYCSubmission.objects.create(
+            user=user,
+            type="DOCUMENT",
+            file_url=uploaded_file,  # ⚡ aquí lo puedes cambiar por un FileField real si lo prefieres
+            **validated_data
+        )
+        return submission
+
+
+class KycUploadSelfieSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(write_only=True)
 
     class Meta:
         model = KYCSubmission
@@ -353,10 +355,12 @@ class KycSelfieUploadSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context["request"].user
+        uploaded_file = validated_data.pop("file")
+
         return KYCSubmission.objects.create(
             user=user,
-            type="selfie",
-            file=validated_data["file"],
-            status="PENDING"
+            type="SELFIE",
+            file_url=uploaded_file
         )
+
 

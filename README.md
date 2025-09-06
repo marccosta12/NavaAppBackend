@@ -12,7 +12,10 @@ POSTGRES_PORT=
 2. Activar venv
 .\venv\Scripts\Activate
 
-3. Comprobar conexión
+3. Update BD
+python manage.py makemigrations [App name] 
+
+3. 1 Migrar BD
 python manage.py migrate
 
 4. Arrancar servidor
