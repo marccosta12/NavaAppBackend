@@ -323,9 +323,7 @@ class KycUploadDocumentSerializer(serializers.ModelSerializer):
         choices=["passport", "nie", "national_id"], source="document_type"
     )
     documentNumber = serializers.CharField(source="extracted_number", required=False, allow_blank=True)
-    side = serializers.ChoiceField(
-        choices=["Front", "Back"], source="side"
-    )
+    side = serializers.ChoiceField(choices=["Front", "Back"])
     file = serializers.FileField(write_only=True)
 
     class Meta:
@@ -335,12 +333,11 @@ class KycUploadDocumentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         uploaded_file = validated_data.pop("file")
-
-        # Guardamos en FileField o como ruta
+        
         submission = KYCSubmission.objects.create(
             user=user,
             type="DOCUMENT",
-            file_url=uploaded_file,  # ⚡ aquí lo puedes cambiar por un FileField real si lo prefieres
+            file=uploaded_file,
             **validated_data
         )
         return submission
@@ -360,7 +357,7 @@ class KycUploadSelfieSerializer(serializers.ModelSerializer):
         return KYCSubmission.objects.create(
             user=user,
             type="SELFIE",
-            file_url=uploaded_file
+            file=uploaded_file
         )
 
 

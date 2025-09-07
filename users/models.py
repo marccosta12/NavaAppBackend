@@ -102,7 +102,7 @@ class KYCSubmission(models.Model):
     type = models.CharField(max_length=50)  # Ej: "DOCUMENT", "SELFIE"
     document_type = models.CharField(max_length=50, null=True, blank=True)
     side = models.CharField(max_length=10, choices=SIDE_CHOICES, null=True, blank=True)  # FRONT / BACK
-    file_url = models.TextField()
+    file = models.FileField(upload_to="kyc_documents/", null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
     reviewed_by = models.UUIDField(null=True, blank=True)  # luego podremos relacionarlo con AdminUser
     reviewed_at = models.DateTimeField(null=True, blank=True)

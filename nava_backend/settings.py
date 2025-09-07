@@ -80,6 +80,8 @@ TEMPLATES = [
     },
 ]
 
+
+
 WSGI_APPLICATION = 'nava_backend.wsgi.application'
 
 AUTH_USER_MODEL = "users.User" #indica que este será el modelo de usuario
@@ -120,6 +122,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
+
+MEDIA_URL = "/media/"
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 LANGUAGE_CODE = 'en-us'
 
